@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+"aws-cdk.core" = "*"
+"aws-cdk.aws-dynamodb" = "*"
+"aws-cdk.aws-s3" = "*"
+"aws-cdk.aws-lambda" = "*"
+"aws-cdk.aws-apigateway" = "*"
+"aws-cdk.aws-route53" = "*"
+"aws-cdk.aws-cloudfront" = "*"
+"aws-cdk.aws-cloudfront-origins" = "*"
+"aws-cdk.aws-certificatemanager" = "*"
+"aws-cdk.aws-route53-targets" = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
