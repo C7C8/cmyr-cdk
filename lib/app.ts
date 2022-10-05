@@ -7,6 +7,7 @@ const app = new cdk.App();
 new PhotoHostingStack(app, "PhotoHostingStack", {
     stackName: "PhotoHostingStack",
     env: {
-        region: "us-east-1"
+        region: "us-east-1",
+        account: "690829806577"
     }
 });

@@ -8,15 +8,20 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "lint": "eslint lib/** && prettier -c .",
+    "lint:fix": "eslint --fix lib/** && prettier --write ."
   },
   "devDependencies": {
     "@types/jest": "^27.5.2",
     "@types/node": "10.17.27",
-    "@types/prettier": "2.6.0",
-    "jest": "^27.5.1",
-    "ts-jest": "^27.1.4",
+    "@types/prettier": "^2.6.0",
+    "@typescript-eslint/eslint-plugin": "^5.39.0",
+    "@typescript-eslint/parser": "^5.39.0",
     "aws-cdk": "2.44.0",
+    "jest": "^27.5.1",
+    "prettier": "^2.7.1",
+    "ts-jest": "^27.1.4",
     "ts-node": "^10.9.1",
     "typescript": "~3.9.7"
   },

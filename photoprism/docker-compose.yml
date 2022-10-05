@@ -1,0 +1,102 @@
+version: '3.5'
+
+services:
+  photos:
+    depends_on:
+      - mariadb
+      - nginx-proxy
+    image: photoprism/photoprism:latest
+    restart: unless-stopped
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    ports:
+      - "2342:2342"
+    expose:
+      - "2342"
+    environment:
+      VIRTUAL_HOST: "photos.crmyers.dev"
+      VIRTUAL_PORT: 2342
+      LETSENCRYPT_HOST: "photos.crmyers.dev"
+      LETSENCRYPT_EMAIL: "me@crmyers.dev"
+      PHOTOPRISM_ADMIN_PASSWORD: "insecure"
+      PHOTOPRISM_AUTH_MODE: "password"
+      PHOTOPRISM_SITE_URL: "https://photos.crmyers.dev/"
+      PHOTOPRISM_ORIGINALS_LIMIT: 5000
+      PHOTOPRISM_HTTP_COMPRESSION: "gzip"
+      PHOTOPRISM_LOG_LEVEL: "info"
+      PHOTOPRISM_READONLY: "false"
+      PHOTOPRISM_EXPERIMENTAL: "false"
+      PHOTOPRISM_DISABLE_CHOWN: "false"
+      PHOTOPRISM_DISABLE_WEBDAV: "false"
+      PHOTOPRISM_DISABLE_SETTINGS: "false"
+      PHOTOPRISM_DISABLE_TENSORFLOW: "false"
+      PHOTOPRISM_DISABLE_FACES: "false"
+      PHOTOPRISM_DISABLE_CLASSIFICATION: "false"
+      PHOTOPRISM_DISABLE_RAW: "false"
+      PHOTOPRISM_RAW_PRESETS: "false"
+      PHOTOPRISM_JPEG_QUALITY: 95
+      PHOTOPRISM_DETECT_NSFW: "false"
+      PHOTOPRISM_UPLOAD_NSFW: "true"
+      PHOTOPRISM_DATABASE_DRIVER: "mysql"
+      PHOTOPRISM_DATABASE_SERVER: "mariadb:3306"
+      PHOTOPRISM_DATABASE_NAME: "photoprism"
+      PHOTOPRISM_DATABASE_USER: "photoprism"
+      PHOTOPRISM_DATABASE_PASSWORD: "insecure"
+      PHOTOPRISM_SITE_CAPTION: "photoprism.crmyers.dev"
+      PHOTOPRISM_SITE_DESCRIPTION: ""
+      PHOTOPRISM_SITE_AUTHOR: "crmyers"
+    working_dir: "/photoprism"
+    volumes:
+      - "/photoprism/originals"
+      - "/photoprism/storage"
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    environment:
+      DEFAULT_HOST: photos.crmyers.dev
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /photoprism/conf:/etc/nginx/conf.d
+      - vhost:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - certs:/etc/nginx/certs
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  nginx-proxy-acme:
+    image: nginxproxy/acme-companion:latest
+    environment:
+      DEFAULT_EMAIL: me@crmyers.dev
+    volumes_from:
+      - nginx-proxy
+    volumes:
+      - certs:/etc/nginx/certs
+      - acme:/etc/acme.sh
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  mariadb:
+    restart: unless-stopped
+    image: mariadb:10.9
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    command: mysqld --innodb-buffer-pool-size=512M --transaction-isolation=READ-COMMITTED --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --max-connections=512 --innodb-rollback-on-timeout=OFF --innodb-lock-wait-timeout=120
+    environment:
+      MARIADB_AUTO_UPGRADE: "1"
+      MARIADB_INITDB_SKIP_TZINFO: "1"
+      MARIADB_DATABASE: "photoprism"
+      MARIADB_USER: "photoprism"
+      MARIADB_PASSWORD: "insecure"
+      MARIADB_ROOT_PASSWORD: "insecure"
+    volumes:
+      - "/photoprism/database:/var/lib/mysql"
+
+volumes:
+  photoprism:
+  conf:
+  acme:
+  certs:
+  vhost:
+  html:
